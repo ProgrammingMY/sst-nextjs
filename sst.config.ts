@@ -42,6 +42,14 @@ export default $config({
       environment: {
         NEXT_PUBLIC_API_URL: api.url,
       },
+      domain: {
+        name: "kelastech.com",
+        dns: sst.cloudflare.dns({
+          zone: process.env.CLOUDFLARE_ZONE_ID!,
+          proxy: false,
+          override: true,
+        }),
+      }
     });
   },
 });
