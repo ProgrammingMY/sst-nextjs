@@ -1,45 +1,15 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { authClient } from "@/lib/auth-client"; //import the auth client
-import { useState } from 'react';
-import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
-export default function SignUp() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-
-  const router = useRouter();
-
-  const signUp = async () => {
-    const { data, error } = await authClient.signUp.email({
-      email,
-      password,
-      name,
-      image: undefined,
-    }, {
-      onRequest: (ctx) => {
-        //show loading
-        console.log("loading");
-      },
-      onSuccess: (ctx) => {
-        return router.push("/dashboard");
-      },
-      onError: (ctx) => {
-        alert(ctx.error.message);
-      },
-    });
-  };
-
+export default function Home() {
+  const router = useRouter() ;
   return (
-    <div>
-      <Input type="name" value={name} onChange={(e) => setName(e.target.value)} />
-      <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-      <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-      <Button onClick={signUp}>Sign Up</Button>
+    <div className="flex flex-col items-center justify-center h-screen">
+      <h1 className="text-2xl font-bold">KelasTech</h1>
+      <Button onClick={() => router.push("/login")}>Login</Button>
+      <Button onClick={() => router.push("/signup")}>Signup</Button>
     </div>
-  );
+  )
 }

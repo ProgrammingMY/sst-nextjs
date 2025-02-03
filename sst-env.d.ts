@@ -6,14 +6,10 @@
 import "sst"
 declare module "sst" {
   export interface Resource {
-    "CfResources": {
-      "accountId": string
-      "dbId": string
-      "type": "sst.sst.Linkable"
-    }
-    "CloudflareD1ApiToken": {
-      "type": "sst.sst.Secret"
-      "value": string
+    "Email": {
+      "configSet": string
+      "sender": string
+      "type": "sst.aws.Email"
     }
     "KelasTechWeb": {
       "type": "sst.aws.Nextjs"
@@ -25,8 +21,8 @@ declare module "sst" {
 import * as cloudflare from "@cloudflare/workers-types";
 declare module "sst" {
   export interface Resource {
-    "KelasTechApi": cloudflare.Service
-    "KelasTechDB": cloudflare.D1Database
+    "PrivateBucket": cloudflare.R2Bucket
+    "PublicBucket": cloudflare.R2Bucket
   }
 }
 
