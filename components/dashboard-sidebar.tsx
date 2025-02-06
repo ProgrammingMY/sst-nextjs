@@ -1,6 +1,6 @@
 "use client"
 
-import { BadgeCheck, BarChart, ChevronsUpDown, LogOut, Search, Settings, Sparkles } from 'lucide-react';
+import { BadgeCheck, BarChart, BookOpenTextIcon, ChevronsUpDown, Home, List, LogOut, Search, Settings, Sparkles } from 'lucide-react';
 
 import {
   Sidebar,
@@ -30,23 +30,32 @@ import { User } from 'better-auth/types';
 import { redirect } from 'next/navigation';
 import { authClient } from "@/lib/auth-client"
 
-// Menu items.
-const items = [
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+const guestRoutes = [
   {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: BarChart,
+      href: "/user",
+      label: "Dashboard",
+      icon: Home,
   },
   {
-    title: "Search",
-    url: "/search",
-    icon: Search,
+      href: "/search",
+      label: "Search",
+      icon: Search,
+  },
+]
+const teacherRoutes = [
+  {
+      href: "/teacher/courses",
+      label: "Courses",
+      icon: List,
   },
   {
-    title: "Settings",
-    url: "/settings",
-    icon: Settings,
-  },
+      href: "/teacher/analytics",
+      label: "Analytics",
+      icon: BarChart,
+  }
 ]
 
 export function DashboardSidebar({
@@ -60,7 +69,14 @@ export function DashboardSidebar({
     redirect("/login");
   }
 
+  const pathname = usePathname();
+  
+  const isTeacherPage = pathname?.includes('/teacher');
+
+  const Routes = isTeacherPage ? teacherRoutes : guestRoutes;
+
   const defaultPicUrl = "https://public.kelastech.com/default.png";
+
   return (
     <Sidebar>
       <SidebarContent>
@@ -69,13 +85,13 @@ export function DashboardSidebar({
           <SidebarGroupLabel className="text-2xl font-bold">Kelas Tech</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
+              {Routes.map((item) => (
+                <SidebarMenuItem key={item.label}>
                   <SidebarMenuButton asChild size={"lg"}>
-                    <a href={item.url}>
+                    <Link href={item.href}>
                       <item.icon />
-                      <span>{item.title}</span>
-                    </a>
+                      <span>{item.label}</span>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -142,14 +158,12 @@ export function DashboardSidebar({
                     <Sparkles />
                     Upgrade to Pro
                   </DropdownMenuItem>
-                  {/* {isTeacher(user) && (
                     <Link href={isTeacherPage ? "/user" : "/teacher/courses"}>
                       <DropdownMenuItem >
                         <BookOpenTextIcon />
                         {isTeacherPage ? "Change To Student Mode" : "Change To Teacher Mode"}
                       </DropdownMenuItem>
                     </Link>
-                  )} */}
 
                 </DropdownMenuGroup>
                 <DropdownMenuGroup>

@@ -44,8 +44,8 @@ export const course = pgTable(
         categoryId: integer("categoryId").references(() => category.id, {
             onDelete: "cascade",
         }),
-        createdAt: timestamp('created_at').notNull(),
-        updatedAt: timestamp('updated_at').notNull(),
+        createdAt: timestamp('created_at').notNull().defaultNow(),
+        updatedAt: timestamp('updated_at').notNull().defaultNow(),
     },
     (table) => [{
         categoryIndex: index("course_categoryId").on(table.categoryId),
@@ -92,8 +92,8 @@ export const chapter = pgTable(
         courseId: uuid("courseId")
             .notNull()
             .references(() => course.id, { onDelete: "cascade" }),
-        createdAt: timestamp('created_at').notNull(),
-        updatedAt: timestamp('updated_at').notNull(),
+            createdAt: timestamp('created_at').notNull().defaultNow(),
+            updatedAt: timestamp('updated_at').notNull().defaultNow(),
     },
     (table) => [{
         courseIndex: index("chapter_courseId").on(table.courseId),
@@ -122,8 +122,8 @@ export const attachment = pgTable(
             .references(() => course.id, { onDelete: "cascade" }),
         fileUrl: text("fileUrl").notNull(),
         fileName: text("fileName").notNull(),
-        createdAt: timestamp('created_at').notNull(),
-        updatedAt: timestamp('updated_at').notNull(),
+        createdAt: timestamp('created_at').notNull().defaultNow(),
+        updatedAt: timestamp('updated_at').notNull().defaultNow(),
     },
 );
 
@@ -148,8 +148,8 @@ export const bunnyData = pgTable(
         chapterId: uuid("chapterId")
             .unique()
             .references(() => chapter.id, { onDelete: "cascade" }),
-        createdAt: timestamp('created_at').notNull(),
-        updatedAt: timestamp('updated_at').notNull(),
+        createdAt: timestamp('created_at').notNull().defaultNow(),
+        updatedAt: timestamp('updated_at').notNull().defaultNow(),
     },
     (table) => [{
         assetIndex: index("bunnyData_videoId").on(table.videoId),
@@ -170,8 +170,8 @@ export const userProgress = pgTable(
         isCompleted: boolean("isCompleted")
             .default(false)
             .notNull(),
-        createdAt: timestamp('created_at').notNull(),
-        updatedAt: timestamp('updated_at').notNull(),
+        createdAt: timestamp('created_at').notNull().defaultNow(),
+        updatedAt: timestamp('updated_at').notNull().defaultNow(),
     },
     (table) => [{
         userIndex: unique("unique_user_chapter").on(
@@ -201,8 +201,8 @@ export const purchase = pgTable(
         courseId: uuid("courseId")
             .notNull()
             .references(() => course.id, { onDelete: "cascade" }),
-        createdAt: timestamp('created_at').notNull(),
-        updatedAt: timestamp('updated_at').notNull(),
+        createdAt: timestamp('created_at').notNull().defaultNow(),
+        updatedAt: timestamp('updated_at').notNull().defaultNow(),
     },
     (table) => [{
         userIndex: unique("purchase_user_course_unique").on(
@@ -231,8 +231,8 @@ export const chipCustomer = pgTable(
         status: text("status")
             .notNull()
             .$type<"pending" | "success" | "failed" | "started">(),
-        createdAt: timestamp('created_at').notNull(),
-        updatedAt: timestamp('updated_at').notNull(),
+        createdAt: timestamp('created_at').notNull().defaultNow(),
+        updatedAt: timestamp('updated_at').notNull().defaultNow(),
     },
     (table) => [{
         pk: primaryKey({

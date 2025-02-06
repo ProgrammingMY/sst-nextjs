@@ -6,6 +6,23 @@
 import "sst"
 declare module "sst" {
   export interface Resource {
+    "BucketLinkable": {
+      "privateBucketName": string
+      "publicBucketName": string
+      "type": "sst.sst.Linkable"
+    }
+    "CLOUDFLARE_ACCESS_KEY_ID": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "CLOUDFLARE_ACCOUNT_ID": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "CLOUDFLARE_SECRET_ACCESS_KEY": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "Email": {
       "configSet": string
       "sender": string

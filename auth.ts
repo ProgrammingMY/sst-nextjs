@@ -4,8 +4,8 @@ import { db } from "./db";
 import * as schema from "@/drizzle/schema";
 import { nextCookies } from "better-auth/next-js";
 
-
 export const auth = betterAuth({
+    appName: "KelasTech",
     trustedOrigins: process.env.NODE_ENV === "development" ? ["http://localhost:3000"] : ["https://kelastech.com"],
     baseURL: process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://kelastech.com",
     database: drizzleAdapter(db, {
