@@ -33,7 +33,7 @@ async function CourseIdPage(
     return redirect("/login");
   }
 
-  const courseSlug = (await params).courseSlug;
+  const { courseSlug } = await params;
 
   const course = await db.query.course.findFirst({
     where: and(
@@ -109,7 +109,6 @@ async function CourseIdPage(
             />
             <DescriptionForm
               initialData={course}
-
               courseSlug={courseSlug}
             />
             <ImageForm
@@ -159,10 +158,10 @@ async function CourseIdPage(
                   Resources & Attachments
                 </h2>
               </div>
-              {/* <AttachmentForm
+              <AttachmentForm
                 initialData={course}
-                courseSlug={params.courseSlug}
-              /> */}
+                courseSlug={courseSlug}
+              />
             </div>
           </div>
 

@@ -1,32 +1,30 @@
 "use client";
+
 import * as z from 'zod';
-import axios from 'axios';
 import { Button } from '@/components/ui/button';
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { File, Loader2, PlusCircle, X } from 'lucide-react';
-import { useToast } from '@/components/hooks/use-toast';
-import { useRouter } from 'next/navigation';
-import { Attachment, Course } from '@prisma/client';
-import { DialogUploader } from '@/components/upload-component/dialog-uploader';
-import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import { UploadDropzone } from '@/components/ui/upload-dropzone';
+import { AttachmentType, CourseType } from '@/drizzle/app-schema';
+import { toast } from 'sonner';
+import { updateCourse } from './course-action';
+import { addAttachment, deleteAttachment } from '../_actions/attachment-action';
 
 interface AttachmentFormProps {
-    initialData: Course & { attachments: Attachment[] };
-    courseId: string;
+    initialData: CourseType & { attachments: AttachmentType[] };
+    courseSlug: string;
 }
 
-const formSchema = z.object({
-    url: z.string().min(1),
-    name: z.string().min(1),
-});
+const formSchema = z.array(z.object({
+    fileUrl: z.string().min(1),
+    fileName: z.string().min(1),
+}));
 
 
-export const AttachmentForm = ({ initialData, courseId }: AttachmentFormProps) => {
+export const AttachmentForm = ({ initialData, courseSlug }: AttachmentFormProps) => {
     const [isEditting, setIsEditting] = useState(false);
     const [deletingId, setdeletingId] = useState<string | null>(null);
-    const { toast } = useToast();
-    const router = useRouter();
 
     const toggleEditting = () => {
         setIsEditting((prev) => !prev);
@@ -35,38 +33,35 @@ export const AttachmentForm = ({ initialData, courseId }: AttachmentFormProps) =
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
-            await axios.post(`/api/courses/${courseId}/attachments`, values);
-            toast({
-                title: "Success",
-                description: "Image uploaded successfully.",
-                variant: "default",
-            });
-            setIsEditting(false);
-            router.refresh();
+            const res = await addAttachment(courseSlug, values);
+            if (res.status === "201") {
+                toast.success("Image uploaded successfully.");
+                setIsEditting(false);
+
+            } else {
+                toast.error(res.message);
+            }
+
         } catch (error) {
-            toast({
-                title: "Error",
-                description: "Something went wrong.",
-                variant: "destructive",
-            });
+            console.log("[ATTACHMENT_FORM_ERROR]: ", error);
+            toast.error("Something went wrong.");
         }
+
+
     }
 
     const onDelete = async (id: string) => {
         try {
-            await axios.delete(`/api/courses/${courseId}/attachments/${id}`);
-            toast({
-                title: "Success",
-                description: "Attachment deleted successfully.",
-                variant: "default",
-            });
-            router.refresh();
+            setdeletingId(id);
+            const res = await deleteAttachment(courseSlug, id);
+            if (res.status === "200") {
+                toast.success("Attachment deleted successfully");
+            } else {
+                toast.error("Something went wrong.");
+            }
+
         } catch (error) {
-            toast({
-                title: "Error",
-                description: "Something went wrong.",
-                variant: "destructive",
-            });
+            toast.error("Something went wrong.");
         } finally {
             setdeletingId(null);
         }
@@ -77,39 +72,18 @@ export const AttachmentForm = ({ initialData, courseId }: AttachmentFormProps) =
         <div className='mt-6 border bg-slate-100 rounded-md p-4' >
             <div className='font-medium flex items-center justify-between'>
                 Course Attachments
-                <Dialog open={isEditting} onOpenChange={setIsEditting}>
-                    <DialogTrigger asChild>
-                        <Button onClick={toggleEditting} variant='ghost' type='button'>
+                <Button onClick={toggleEditting} variant='ghost' type='button'>
+                    {isEditting ? (
+                        <>Cancel</>
+                    ) : (
+                        <>
                             <PlusCircle className='h-4 w-4 mr-2' />
                             Add a file
-                        </Button>
-                    </DialogTrigger>
-                    <DialogUploader
-                        multiple={true}
-                        maxFileCount={5}
-                        maxSize={1024 * 1024 * 10}
-                        accept={{
-                            "image/*": [],
-                            "text/*": [],
-                            "audio/*": [],
-                            "application/pdf": [],
-                            "application/json": [],
-                            "application/vnd.openxmlformats-officedocument.presentationml.presentation": [],
-                            "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [],
-                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [],
-                            "application/x-zip-compressed": [],
-                            "application/zip": [],
-
-                        }}
-                        onGetUrl={(responseData) => {
-                            if (responseData) {
-                                onSubmit({ url: responseData.fileUrl, name: responseData.fileName })
-                            }
-                        }}
-                    />
-                </Dialog>
+                        </>
+                    )}
+                </Button>
             </div>
-            {!isEditting && (
+            {!isEditting ? (
                 <>
                     {initialData.attachments.length === 0 && (
                         <p className='text-sm mt-2 text-slate-500 italic'>No attachments</p>
@@ -125,17 +99,33 @@ export const AttachmentForm = ({ initialData, courseId }: AttachmentFormProps) =
                                             <Loader2 className='h-4 w-4 animate-spin' />
                                         </div>
                                     )}
-                                    {deletingId === attachment.id && (
-                                        <Button onClick={() => onDelete(attachment.id)} className='ml-auto hover:opacity-75 transition'>
-                                            <X className='h-4 w-4' />
-                                        </Button>
-                                    )}
+                                    <Button variant={'ghost'} size={"sm"} onClick={() => onDelete(attachment.id)} className='ml-auto hover:opacity-75 transition'>
+                                        <X />
+                                    </Button>
                                 </div>
                             ))}
 
                         </div>
                     )}
                 </>
+            ) : (
+                <UploadDropzone
+                    route='courseAttachment'
+                    accept='*'
+                    multiple
+                    maxFileCount={5}
+                    description={{
+                        maxFiles: 5,
+                        maxFileSize: '10MB',
+                        fileTypes: 'Any',
+                    }}
+                    onUploadComplete={({ files, metadata }) => {
+                        // update all files in db
+                        if (files.length > 0) {
+                            onSubmit(files.map((file) => ({ fileUrl: file.objectKey, fileName: file.name })));
+                        }
+                    }}
+                />
             )}
         </div >
     )

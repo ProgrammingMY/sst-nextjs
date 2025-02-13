@@ -11,7 +11,7 @@ import { CourseFormProps } from '@/lib/types';
 import { UploadDropzone } from '@/components/ui/upload-dropzone';
 import { toast } from 'sonner';
 import { updateCourse } from './course-action';
-
+import Image from 'next/image';
 
 const formSchema = z.object({
     imageUrl: z.string().min(1, {
@@ -37,9 +37,8 @@ export const ImageForm = ({ initialData, courseSlug }: CourseFormProps) => {
         setIsEditting(false);
     };
 
-
     return (
-        <div className='border bg-slate-100 rounded-md p-4' >
+        <div className='mt-6 border bg-slate-100 rounded-md p-4' >
             <div className='font-medium flex items-center justify-between'>
                 Course Image
                 <Button onClick={toggleEditting} variant='ghost' type='button'>
@@ -61,9 +60,11 @@ export const ImageForm = ({ initialData, courseSlug }: CourseFormProps) => {
                     </div>
                 ) : (
                     <div className='relative aspect-video mt-2'>
-                        <img
+                        <Image
                             src={`/api/download/${encodeURIComponent(initialData.imageUrl)}`}
                             alt="Course image"
+                            className='object-cover'
+                            fill
                         />
                     </div>
                 )

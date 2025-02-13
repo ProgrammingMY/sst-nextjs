@@ -28,6 +28,8 @@ export const updateCourse = async (
         // get all values from the formdata object
         const values = Object.fromEntries(formData);
 
+        console.log("[VALUES]: ", values);
+
         await db.update(schema.course)
             .set({ ...values })
             .where(and(
